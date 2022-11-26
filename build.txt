@@ -1,3 +1,4 @@
 displayName = Nakano's Server Mod 1.4
 author = Nakano15
 version = 0.1
+homepage = https://github.com/nakano15/nservermod1dot4
