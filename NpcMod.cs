@@ -19,7 +19,7 @@ namespace nservermod1dot4
             bool HarderDungeon = WorldMod.IsHarderDungeonAndSkeleEnabled.Value;
             switch (npc.type)
             {
-                case NPCID.SkeletronHead:
+                /*case NPCID.SkeletronHead:
                 case NPCID.SkeletronHand:
                     if (HarderDungeon)
                     {
@@ -47,7 +47,7 @@ namespace nservermod1dot4
                     {
                         npc.damage += 30;
                     }
-                    break;
+                    break;*/
                 case NPCID.Werewolf:
                     if (Main.rand.Next(100) == 0)
                         npc.GivenName = "Furry";
@@ -110,12 +110,12 @@ namespace nservermod1dot4
             if (!WorldMod.IsCustomMobSpawnsEnabled.Value) return;
             if (!Main.hardMode)
             {
-                if (Main.moonPhase == 0 && !spawnInfo.PlayerInTown && !NPC.AnyNPCs(NPCID.Werewolf))
-                {
-                    pool.Add(NPCID.Werewolf, 1f / 30);
-                }
                 if (!spawnInfo.PlayerInTown)
                 {
+                    if (Main.moonPhase == 0 && !Main.dayTime && !NPC.AnyNPCs(NPCID.Werewolf))
+                    {
+                        pool.Add(NPCID.Werewolf, 1f / 30);
+                    }
                     if (Main.raining && spawnInfo.Player.ZoneSnow)
                     {
                         pool.Add(NPCID.IceGolem, 1f / 300);
@@ -124,7 +124,7 @@ namespace nservermod1dot4
                     {
                         pool.Add(NPCID.SandElemental, 1f / 300);
                     }
-                    if (!NPC.AnyNPCs(NPCID.WyvernHead))
+                    if (spawnInfo.Player.ZoneSkyHeight && !NPC.AnyNPCs(NPCID.WyvernHead))
                     {
                         Tile tile = Main.tile[(int)(spawnInfo.Player.Center.X * (1f / 16)), (int)(spawnInfo.Player.Center.Y * (1f / 16))];
                         if (tile.WallType == 0)
@@ -147,13 +147,13 @@ namespace nservermod1dot4
                         pool.Add(NPCID.Lihzahrd, 1f / 250);
                     }
                 }
-                if (spawnInfo.Player.ZoneBeach)
+                if (spawnInfo.Player.ZoneBeach && spawnInfo.Water)
                 {
                     pool.Add(NPCID.CreatureFromTheDeep, 1f / 300);
                 }
                 if (!Main.dayTime)
                 {
-                    pool.Add(NPCID.Psycho, 1f / 300);
+                    pool.Add(NPCID.Psycho, 1f / 1000);
                 }
             }
         }

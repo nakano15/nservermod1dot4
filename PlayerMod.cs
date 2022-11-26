@@ -13,7 +13,7 @@ namespace nservermod1dot4
 	{
         public override void PlayerConnect(Player player)
         {
-            
+
         }
 
         public override void PreUpdateBuffs()
@@ -23,7 +23,7 @@ namespace nservermod1dot4
 
         public override void OnEnterWorld(Player player)
         {
-            
+
         }
     }
 }

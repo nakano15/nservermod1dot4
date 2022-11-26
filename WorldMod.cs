@@ -165,7 +165,7 @@ namespace nservermod1dot4
 
         public static void Initialize()
         {
-            nservermod1dot4.IsInSinglePlayer = Main.netMode == 0;
+            nservermod1dot4.IsInSinglePlayer = Main.netMode == 0 && !Main.dedServ;
         }
 
         internal static void AddTreePlantingPosition(int X, int Y)
@@ -221,6 +221,7 @@ namespace nservermod1dot4
                 }
             }
         }
+        
         public static void UpdateHourlyRespawn()
         {
             if (nservermod1dot4.GetHourValue < 255 && IsChestRespawnEnabled.Value)
@@ -356,12 +357,53 @@ namespace nservermod1dot4
                 }
             }
         }
+        
+        private static bool IsUndergroundDesert(int x, int y)
+        {
+            if ((double)y < Main.worldSurface)
+            {
+                return false;
+            }
+            if ((double)x < (double)Main.maxTilesX * 0.15 || (double)x > (double)Main.maxTilesX * 0.85)
+            {
+                return false;
+            }
+            int num = 15;
+            for (int i = x - num; i <= x + num; i++)
+            {
+                for (int j = y - num; j <= y + num; j++)
+                {
+                    if (Main.tile[i, j].WallType == 187 || Main.tile[i, j].WallType == 216)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool IsDungeon(int x, int y)
+        {
+            if ((double)y < Main.worldSurface)
+            {
+                return false;
+            }
+            if (x < 0 || x > Main.maxTilesX)
+            {
+                return false;
+            }
+            if (Main.wallDungeon[Main.tile[x, y].WallType])
+            {
+                return true;
+            }
+            return false;
+        }
 
         private static void RefillChests()
         {
             List<byte> HellChestIDs = new List<byte>();
             {
-                for(byte c = 0; c < 5; c++)
+                for(byte c = 0; c < 7; c++)
                 {
                     if(HellChestIDs.Count > 0 && Main.rand.NextFloat() >= 0.5f)
                     {
@@ -379,6 +421,7 @@ namespace nservermod1dot4
                 if (Main.player[i].active && Main.player[i].chest > -1)
                     OpenedChests.Add(Main.player[i].chest);
             }
+            const int ForTheWorthyTrollLootRate = 15;
             byte CurrentHellChest = 0, CurrentWaterLoot = (byte)Main.rand.Next(3), CurrentDungeonLoot = (byte)Main.rand.Next(8);
             for (int i = 0; i < Main.maxChests; i++)
             {
@@ -397,11 +440,15 @@ namespace nservermod1dot4
                     ushort Type = t.TileType;
                     if (Type != TileID.Containers && Type != TileID.Containers2 && Type != TileID.Dressers)
                         continue;
+                    if (Main.wallHouse[t.WallType])
+                        continue;
+                    bool UndergroundDesert = y >= Main.worldSurface + 25 && y <= Main.maxTilesY - 205 && IsUndergroundDesert(x, y);
                     bool IsDungeonWall = t.WallType == WallID.BlueDungeonTileUnsafe || t.WallType == WallID.BlueDungeonSlabUnsafe || t.WallType == WallID.BlueDungeonUnsafe ||
                         t.WallType == WallID.GreenDungeonSlabUnsafe || t.WallType == WallID.GreenDungeonSlabUnsafe || t.WallType == WallID.GreenDungeonUnsafe ||
                         t.WallType == WallID.BlueDungeonSlabUnsafe || t.WallType == WallID.BlueDungeonSlabUnsafe || t.WallType == WallID.BlueDungeonUnsafe;
                     bool IsDresser = Type == TileID.Dressers;
                     int Style = t.TileFrameX / 36;
+                    bool DungeonChest = Type == 21 && Style != 0 && IsDungeon(x, y);
                     int PrimaryLoot = 0;
                     switch (Style)
                     {
@@ -409,6 +456,13 @@ namespace nservermod1dot4
                             if (IsDungeonWall)
                             {
                                 PrimaryLoot = ItemID.GoldenKey;
+                            }
+                            if (UndergroundDesert)
+                            {
+                                if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
+                                    PrimaryLoot = 52;
+                                else
+                                    PrimaryLoot = ((y <= (WorldGen.desertHiveHigh * 3 + WorldGen.desertHiveLow * 4) / 7) ? Utils.SelectRandom(Main.rand, new short[]{4056, 4055, 4262, 4263}) : Utils.SelectRandom(Main.rand, new short[]{4061, 4062, 4276}));
                             }
                             break;
                         case 1:
@@ -529,6 +583,13 @@ namespace nservermod1dot4
                         }
                         if (Main.rand.Next(20) == 0) PrimaryLoot = 997;
                         if (Main.rand.Next(50) == 0) PrimaryLoot = 669;
+                        if (WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0) PrimaryLoot = 52;
+                    }
+                    if (Type == 21 && (Style == 10 || PrimaryLoot == 211 || PrimaryLoot == 212 || PrimaryLoot == 213 ||PrimaryLoot == 753))
+                    {
+
+                        if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
+                            PrimaryLoot = 52;
                     }
                     if(y > Main.maxTilesY - 205 && PrimaryLoot == 0)
                     {
@@ -556,6 +617,15 @@ namespace nservermod1dot4
                         {
                             PrimaryLoot = 3019;
                             Style = 4;
+                        }
+                        else
+                        {
+                            PrimaryLoot = 5010;
+                            Style = 4;
+                        }
+                        if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
+                        {
+                            PrimaryLoot = 52;
                         }
                         CurrentHellChest++;
                         if (CurrentHellChest > 4)
@@ -615,12 +685,17 @@ namespace nservermod1dot4
                                 case 832:
                                     items[Pos].SetDefaults(933, true);
                                     Pos++;
+                                    if(Main.rand.Next(10) == 0)
+                                    {
+                                        items[Pos].SetDefaults(Main.rand.Next(2) == 0 ? 4429 : 4427);
+                                        Pos++;
+                                    }
                                     break;
                             }
                         }
                         else
                         {
-                            switch (Main.rand.Next(11))
+                            switch (Main.rand.Next(12))
                             {
                                 case 0:
                                     items[Pos].SetDefaults(280, true);
@@ -677,11 +752,26 @@ namespace nservermod1dot4
                                     items[Pos].Prefix(-1);
                                     Pos++;
                                     break;
+                                case 11:
+                                    items[Pos].SetDefaults(4341, true);
+                                    items[Pos].Prefix(-1);
+                                    Pos++;
+                                    break;
                             }
                         }
                         if (Main.rand.Next(6) == 0)
                         {
                             items[Pos].SetDefaults(3093, true);
+                            items[Pos].stack = 1;
+                            if (Main.rand.Next(5) == 0)
+                                items[Pos].stack += Main.rand.Next(2);
+                            if (Main.rand.Next(10) == 0)
+                                items[Pos].stack += Main.rand.Next(3);
+                            Pos++;
+                        }
+                        if (Main.rand.Next(6) == 0)
+                        {
+                            items[Pos].SetDefaults(4345, true);
                             items[Pos].stack = 1;
                             if (Main.rand.Next(5) == 0)
                                 items[Pos].stack += Main.rand.Next(2);
@@ -784,6 +874,12 @@ namespace nservermod1dot4
                             items[Pos].stack = Main.rand.Next(10, 31);
                             Pos++;
                         }
+                        if (Main.rand.Next(2) == 0)
+                        {
+                            items[Pos].SetDefaults(9, true);
+                            items[Pos].stack = Main.rand.Next(50, 100);
+                            Pos++;
+                        }
                     }
                     else if(y < Main.rockLayer)
                     {
@@ -797,54 +893,85 @@ namespace nservermod1dot4
                             items[Pos].SetDefaults(PrimaryLoot, true);
                             items[Pos].Prefix(-1);
                             Pos++;
+                            if(Style == 12 && Main.rand.Next(10) == 0)
+                            {
+                                items[Pos].SetDefaults(Main.rand.Next(2) == 0 ? 4429 : 4427);
+                                Pos++;
+                            }
+                            if (Type == 21 && Style != 0 && Main.rand.Next(3) == 0)
+                            {
+                                items[Pos++].SetDefaults(329);
+                            }
                         }
                         else
                         {
+                            switch (Main.rand.Next(6))
+                            {
+                                case 0:
+                                    items[Pos].SetDefaults(49, true);
+                                    items[Pos].Prefix(-1);
+                                    break;
+                                case 1:
+                                    items[Pos].SetDefaults(50, true);
+                                    items[Pos].Prefix(-1);
+                                    break;
+                                case 2:
+                                    items[Pos].SetDefaults(53, true);
+                                    items[Pos].Prefix(-1);
+                                    break;
+                                case 3:
+                                    items[Pos].SetDefaults(54, true);
+                                    items[Pos].Prefix(-1);
+                                    break;
+                                case 4:
+                                    items[Pos].SetDefaults(55, true);
+                                    items[Pos].Prefix(-1);
+                                    break;
+                                case 5:
+                                    items[Pos].SetDefaults(975, true);
+                                    items[Pos].Prefix(-1);
+                                    break;
+                            }
+                            Pos++;
                             if(Main.rand.Next(20) == 0)
                             {
                                 items[Pos].SetDefaults(997, true);
                                 items[Pos].Prefix(-1);
+                                Pos++;
                             }
-                            else
+                            else if(Main.rand.Next(20) == 0)
                             {
-                                switch (Main.rand.Next(7))
+                                items[Pos].SetDefaults(930, true);
+                                items[Pos].Prefix(-1);
+                                Pos++;
+                                items[Pos].SetDefaults(931, true);
+                                items[Pos].Prefix(-1);
+                                Pos++;
+                            }
+                            if(Type == 21 && Style == 32)
+                            {
+                                if(Main.rand.Next(2) == 0)
                                 {
-                                    case 0:
-                                        items[Pos].SetDefaults(49, true);
-                                        items[Pos].Prefix(-1);
-                                        break;
-                                    case 1:
-                                        items[Pos].SetDefaults(50, true);
-                                        items[Pos].Prefix(-1);
-                                        break;
-                                    case 2:
-                                        items[Pos].SetDefaults(53, true);
-                                        items[Pos].Prefix(-1);
-                                        break;
-                                    case 3:
-                                        items[Pos].SetDefaults(54, true);
-                                        items[Pos].Prefix(-1);
-                                        break;
-                                    case 4:
-                                        items[Pos].SetDefaults(55, true);
-                                        items[Pos].Prefix(-1);
-                                        break;
-                                    case 5:
-                                        items[Pos].SetDefaults(975, true);
-                                        items[Pos].Prefix(-1);
-                                        break;
-                                    case 6:
-                                        items[Pos].SetDefaults(930, true);
-                                        items[Pos].Prefix(-1);
-                                        Pos++;
-                                        items[Pos].SetDefaults(931, true);
-                                        items[Pos].stack = Main.rand.Next(26) + 25;
-                                        break;
+                                    items[Pos++].SetDefaults(4450, true);
+                                }
+                                if(Main.rand.Next(3) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4779, true);
+                                    items[Pos++].SetDefaults(4780, true);
+                                    items[Pos++].SetDefaults(4781, true);
                                 }
                             }
-                            Pos++;
                         }
-                        if(Main.rand.Next(3) == 0)
+                        if(UndergroundDesert)
+                        {
+                            if(Main.rand.Next(3) == 0)
+                            {
+                                items[Pos].SetDefaults(4423, true);
+                                items[Pos].stack = Main.rand.Next(10, 20);
+                                Pos++;
+                            }
+                        }
+                        else if(Main.rand.Next(3) == 0)
                         {
                             items[Pos].SetDefaults(166, true);
                             items[Pos].stack = Main.rand.Next(10, 21);
@@ -961,20 +1088,38 @@ namespace nservermod1dot4
                             items[Pos].SetDefaults(PrimaryLoot, true);
                             items[Pos].Prefix(-1);
                             Pos++;
+                            if (UndergroundDesert)
+                            {
+                                if(Main.rand.Next(7) == 0)
+                                    items[Pos++].SetDefaults(4346, true);
+                                if(Main.rand.Next(15) == 0)
+                                    items[Pos++].SetDefaults(4066, true);
+                            }
                             if (SpawnIceMirror && Main.rand.Next(5) == 0)
                             {
                                 items[Pos].SetDefaults(3199, true);
                                 Pos++;
                             }
-                            if (SpawnMahoganyTreeStuff && Main.rand.Next(6) == 0)
+                            if (SpawnMahoganyTreeStuff)
                             {
-                                items[Pos++].SetDefaults(3360, true);
-                                items[Pos++].SetDefaults(3361, true);
+                                if(Main.rand.Next(6) == 0)
+                                {
+                                    items[Pos++].SetDefaults(3360, true);
+                                    items[Pos++].SetDefaults(3361, true);
+                                }
+                                if (Main.rand.Next(10) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4426, true);
+                                }
+                            }
+                            if (DungeonChest && Main.rand.Next(3) == 0)
+                            {
+                                items[Pos++].SetDefaults(329);
                             }
                         }
                         else
                         {
-                            if (Main.rand.Next(40) == 0)
+                            if (Main.rand.Next(20) == 0 && y > WorldGen.lavaLine)
                             {
                                 items[Pos].SetDefaults(906, true);
                                 items[Pos].Prefix(-1);
@@ -988,7 +1133,7 @@ namespace nservermod1dot4
                             }
                             else
                             {
-                                switch (Main.rand.Next(7))
+                                switch (Main.rand.Next(8))
                                 {
                                     case 0:
                                         items[Pos].SetDefaults(49, true);
@@ -1011,7 +1156,7 @@ namespace nservermod1dot4
                                         Pos++;
                                         break;
                                     case 4:
-                                        items[Pos].SetDefaults(55, true);
+                                        items[Pos].SetDefaults(5011, true);
                                         items[Pos].Prefix(-1);
                                         Pos++;
                                         break;
@@ -1021,12 +1166,31 @@ namespace nservermod1dot4
                                         Pos++;
                                         break;
                                     case 6:
+                                        items[Pos].SetDefaults(158, true);
+                                        items[Pos].Prefix(-1);
+                                        Pos++;
+                                        break;
+                                    case 7:
                                         items[Pos].SetDefaults(930, true);
                                         items[Pos].Prefix(-1);
                                         Pos++;
                                         items[Pos].SetDefaults(931, true);
                                         items[Pos].stack = Main.rand.Next(26) + 25;
+                                        Pos++;
                                         break;
+                                }
+                            }
+                            if(Type == 21 && Style == 32)
+                            {
+                                if(Main.rand.Next(2) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4450, true);
+                                }
+                                if(Main.rand.Next(3) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4779, true);
+                                    items[Pos++].SetDefaults(4780, true);
+                                    items[Pos++].SetDefaults(4781, true);
                                 }
                             }
                         }
@@ -1106,28 +1270,25 @@ namespace nservermod1dot4
                         }
                         if(Main.rand.Next(3) > 1)
                         {
-                            switch (Main.rand.Next(7))
+                            switch (Main.rand.Next(6))
                             {
                                 case 0:
                                     items[Pos].SetDefaults(301, true);
                                     break;
                                 case 1:
-                                    items[Pos].SetDefaults(302, true);
-                                    break;
-                                case 2:
                                     items[Pos].SetDefaults(297, true);
                                     break;
-                                case 3:
+                                case 2:
                                     items[Pos].SetDefaults(304, true);
                                     break;
-                                case 4:
+                                case 3:
                                     items[Pos].SetDefaults(2329, true);
                                     break;
-                                case 5:
+                                case 4:
                                     items[Pos].SetDefaults(2351, true);
                                     break;
-                                case 6:
-                                    items[Pos].SetDefaults(2329, true);
+                                case 5:
+                                    items[Pos].SetDefaults(2326, true);
                                     break;
                             }
                             items[Pos].stack = Main.rand.Next(1, 3);
@@ -1173,6 +1334,44 @@ namespace nservermod1dot4
                             items[Pos].SetDefaults(PrimaryLoot, true);
                             items[Pos].Prefix(-1);
                             Pos++;
+                            if(Type == 21 && y > Main.maxTilesY - 205)
+                            {
+                                if(Main.rand.Next(10) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4443, true);
+                                }
+                                if(Main.rand.Next(10) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4743, true);
+                                }
+                                if(Main.rand.Next(10) == 0)
+                                {
+                                    items[Pos++].SetDefaults(4551, true);
+                                }
+                            }
+                            else
+                            {
+                                switch(Main.rand.Next(4))
+                                {
+                                    case 0:
+                                        items[Pos].SetDefaults(49, true);
+                                        items[Pos].Prefix(-1);
+                                        break;
+                                    case 1:
+                                        items[Pos].SetDefaults(50, true);
+                                        items[Pos].Prefix(-1);
+                                        break;
+                                    case 2:
+                                        items[Pos].SetDefaults(53, true);
+                                        items[Pos].Prefix(-1);
+                                        break;
+                                    case 3:
+                                        items[Pos].SetDefaults(54, true);
+                                        items[Pos].Prefix(-1);
+                                        break;
+                                }
+                                Pos++;
+                            }
                         }
                         else
                         {
@@ -1295,7 +1494,7 @@ namespace nservermod1dot4
                         }
                         if (Main.rand.Next(3) == 0)
                         {
-                            items[Pos].SetDefaults(2350, true);
+                            items[Pos].SetDefaults(Main.rand.Next(2) == 0 ? 2350 : 4870, true);
                             items[Pos].stack = Main.rand.Next(1, 3);
                             Pos++;
                         }
