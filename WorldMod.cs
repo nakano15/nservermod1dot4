@@ -467,7 +467,7 @@ namespace nservermod1dot4
                             break;
                         case 1:
                         case 2:
-                            if (IsDungeonWall)
+                            if (DungeonChest)
                             {
                                 switch (CurrentDungeonLoot)
                                 {
@@ -505,7 +505,15 @@ namespace nservermod1dot4
                             PrimaryLoot = WorldGen.GetNextJungleChestItem();
                             break;
                         case 13:
-                            switch (Main.rand.Next(3))
+                            if(Main.rand.Next(3) < 2)
+                            {
+                                PrimaryLoot = 832;
+                            }
+                            else
+                            {
+                                PrimaryLoot = 4281;
+                            }
+                            /*switch (Main.rand.Next(3))
                             {
                                 default:
                                     PrimaryLoot = 159;
@@ -516,7 +524,7 @@ namespace nservermod1dot4
                                 case 2:
                                     PrimaryLoot = 158;
                                     break;
-                            }
+                            }*/
                             break;
                         case 17:
                             if (Main.rand.Next(15) == 0)
@@ -898,7 +906,7 @@ namespace nservermod1dot4
                                 items[Pos].SetDefaults(Main.rand.Next(2) == 0 ? 4429 : 4427);
                                 Pos++;
                             }
-                            if (Type == 21 && Style != 0 && Main.rand.Next(3) == 0)
+                            if (DungeonChest && Main.rand.Next(3) == 0)
                             {
                                 items[Pos++].SetDefaults(329);
                             }
