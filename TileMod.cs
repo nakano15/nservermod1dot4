@@ -62,6 +62,10 @@ namespace nservermod1dot4
                             break;
                     }
                     return false;
+                case TileID.HardenedSand:
+                case TileID.HallowHardenedSand:
+                case TileID.CorruptHardenedSand:
+                case TileID.CrimsonHardenedSand:
                 case TileID.Torches:
                 case TileID.Platforms:
                 case TileID.Rope:

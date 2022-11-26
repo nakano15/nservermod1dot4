@@ -18,7 +18,7 @@ namespace nservermod1dot4
 
         public override void KillWall(int i, int j, int type, ref bool fail)
         {
-            fail = !nservermod1dot4.IsInSinglePlayer || !nservermod1dot4.LocalPlayerHasPermissionToBuild() || j < Main.worldSurface - 20;
+            fail = (!nservermod1dot4.IsInSinglePlayer && !nservermod1dot4.LocalPlayerHasPermissionToBuild()) && j < Main.worldSurface - 20;
         }
     }
 }

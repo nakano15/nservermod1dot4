@@ -10,7 +10,8 @@ using Terraria.Chat;
 namespace nservermod1dot4
 {
 	public class NetMod
-	{public enum MessageIDs : byte
+	{
+        public enum MessageIDs : byte
         {
             BuildingAllowed,
             AskServerTime,
