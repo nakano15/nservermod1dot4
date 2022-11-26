@@ -78,10 +78,11 @@ namespace nservermod1dot4
                 case TileID.HallowedVines:
                 case TileID.JungleVines:
                 case 3: //Tall Grasses
+                case TileID.VanityTreeSakura:
+                case TileID.VanityTreeYellowWillow:
                 case TileID.Trees:
                 case TileID.MushroomTrees:
                 case TileID.PalmTree:
-                case TileID.PineTree:
                 case TileID.Pots:
                 case TileID.CorruptThorns:
                 case TileID.CrimsonThorns:
@@ -109,6 +110,9 @@ namespace nservermod1dot4
             switch (type)
             {
                 case 5:
+                case TileID.PalmTree:
+                case TileID.VanityTreeSakura:
+                case TileID.VanityTreeYellowWillow:
                     if (!fail && Main.netMode != 1)
                     {
                         Tile tile = Framing.GetTileSafely(x, y + 1);
