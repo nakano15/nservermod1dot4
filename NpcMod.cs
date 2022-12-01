@@ -112,39 +112,75 @@ namespace nservermod1dot4
             {
                 if (!spawnInfo.PlayerInTown)
                 {
+                    float PlayerOnlineSpawnChance = 1f + nservermod1dot4.OnlinePlayers * (1f / 50);
                     if (Main.moonPhase == 0 && !Main.dayTime && !NPC.AnyNPCs(NPCID.Werewolf))
                     {
-                        pool.Add(NPCID.Werewolf, 1f / 30);
+                        pool.Add(NPCID.Werewolf, (1f / 30) * PlayerOnlineSpawnChance);
                     }
                     if (Main.raining && spawnInfo.Player.ZoneSnow)
                     {
-                        pool.Add(NPCID.IceGolem, 1f / 300);
+                        pool.Add(NPCID.IceGolem, (1f / 300) * PlayerOnlineSpawnChance);
                     }
                     if (spawnInfo.Player.ZoneSandstorm)
                     {
-                        pool.Add(NPCID.SandElemental, 1f / 300);
+                        pool.Add(NPCID.SandElemental, (1f / 300) * PlayerOnlineSpawnChance);
                     }
                     if (spawnInfo.Player.ZoneSkyHeight && !NPC.AnyNPCs(NPCID.WyvernHead))
                     {
                         Tile tile = Main.tile[(int)(spawnInfo.Player.Center.X * (1f / 16)), (int)(spawnInfo.Player.Center.Y * (1f / 16))];
                         if (tile.WallType == 0)
-                            pool.Add(NPCID.WyvernHead, 1f / 1000);
+                            pool.Add(NPCID.WyvernHead, (1f / 1000) * PlayerOnlineSpawnChance);
                     }
                     if (spawnInfo.SpawnTileType == TileID.Sand)
                     {
-                        pool.Add(NPCID.Mummy, 1f / 50);
+                        pool.Add(NPCID.Mummy, (1f / 50) * PlayerOnlineSpawnChance);
                     }
                     if (spawnInfo.SpawnTileType == TileID.Ebonsand || spawnInfo.SpawnTileType == TileID.Crimsand)
                     {
-                        pool.Add(NPCID.DarkMummy, 1f / 50);
+                        pool.Add(NPCID.DarkMummy, (1f / 50) * PlayerOnlineSpawnChance);
                     }
                     if (spawnInfo.SpawnTileType == TileID.MushroomGrass)
                     {
-                        pool.Add(NPCID.TruffleWorm, 1f / 300);
+                        pool.Add(NPCID.TruffleWorm, (1f / 300) * PlayerOnlineSpawnChance);
                     }
                     if (spawnInfo.Player.ZoneJungle)
                     {
-                        pool.Add(NPCID.Lihzahrd, 1f / 250);
+                        pool.Add(NPCID.Lihzahrd, (1f / 250) * PlayerOnlineSpawnChance);
+                    }
+                    if (spawnInfo.Player.ZoneSnow && spawnInfo.Player.ZoneOverworldHeight)
+                    {
+                        pool.Add(NPCID.Wolf, (1f / 250) * PlayerOnlineSpawnChance);
+                    }
+                    if(spawnInfo.Player.ZoneDirtLayerHeight)
+                    {
+                        if(spawnInfo.Player.ZoneSnow)
+                        {
+                            pool.Add(NPCID.IceMimic, (1f / 1000) * PlayerOnlineSpawnChance);
+                        }
+                        else
+                        {
+                            pool.Add(NPCID.Mimic, (1f / 1000) * PlayerOnlineSpawnChance);
+                        }
+                    }
+                    if(spawnInfo.Player.ZoneGraveyard)
+                    {
+                        pool.Add(NPCID.Reaper, PlayerOnlineSpawnChance * (1f / 100));
+                    }
+                    if(spawnInfo.Player.ZoneCorrupt)
+                    {
+                        pool.Add(NPCID.Corruptor, PlayerOnlineSpawnChance * (1f / 100));
+                    }
+                    if(spawnInfo.Player.ZoneCrimson)
+                    {
+                        pool.Add(NPCID.Herpling, PlayerOnlineSpawnChance  * (1f / 100));
+                    }
+                    if(spawnInfo.Player.ZoneJungle)
+                    {
+                        pool.Add(NPCID.GiantTortoise, PlayerOnlineSpawnChance  * (1f / 100));
+                    }
+                    if(spawnInfo.Player.ZoneSnow && spawnInfo.Player.ZoneDirtLayerHeight)
+                    {
+                        pool.Add(NPCID.GiantTortoise, PlayerOnlineSpawnChance  * (1f / 100));
                     }
                 }
                 if (spawnInfo.Player.ZoneBeach && spawnInfo.Water)

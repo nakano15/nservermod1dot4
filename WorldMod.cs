@@ -282,7 +282,7 @@ namespace nservermod1dot4
 
         private static void PlaceLifeCrystal()
         {
-            int x = Main.rand.Next(40, Main.maxTilesX - 40), y = Main.rand.Next((int)(WorldGen.worldSurfaceHigh + 20), Main.maxTilesY - 300);
+            int x = Main.rand.Next(40, Main.maxTilesX - 40), y = Main.rand.Next((int)(WorldGen.worldSurface + 20), Main.maxTilesY - 300);
             Tile tile = Main.tile[x, y];
             if (y < Main.worldSurface)
             {
@@ -360,15 +360,15 @@ namespace nservermod1dot4
         
         private static bool IsUndergroundDesert(int x, int y)
         {
-            if ((double)y < Main.worldSurface)
+            if (y < Main.worldSurface)
             {
                 return false;
             }
-            if ((double)x < (double)Main.maxTilesX * 0.15 || (double)x > (double)Main.maxTilesX * 0.85)
+            if (x < Main.maxTilesX * 0.15f || x > Main.maxTilesX * 0.85)
             {
                 return false;
             }
-            int num = 15;
+            const int num = 15;
             for (int i = x - num; i <= x + num; i++)
             {
                 for (int j = y - num; j <= y + num; j++)
@@ -438,131 +438,155 @@ namespace nservermod1dot4
                     Tile t = Framing.GetTileSafely(x, y);
                     bool SpawnIceMirror = false, SpawnMahoganyTreeStuff = false;
                     ushort Type = t.TileType;
+                    bool IsDresser = Type == TileID.Dressers;
                     if (Type != TileID.Containers && Type != TileID.Containers2 && Type != TileID.Dressers)
                         continue;
-                    if (Main.wallHouse[t.WallType])
+                    if (IsDresser && Main.wallHouse[t.WallType])
                         continue;
                     bool UndergroundDesert = y >= Main.worldSurface + 25 && y <= Main.maxTilesY - 205 && IsUndergroundDesert(x, y);
                     bool IsDungeonWall = t.WallType == WallID.BlueDungeonTileUnsafe || t.WallType == WallID.BlueDungeonSlabUnsafe || t.WallType == WallID.BlueDungeonUnsafe ||
                         t.WallType == WallID.GreenDungeonSlabUnsafe || t.WallType == WallID.GreenDungeonSlabUnsafe || t.WallType == WallID.GreenDungeonUnsafe ||
                         t.WallType == WallID.BlueDungeonSlabUnsafe || t.WallType == WallID.BlueDungeonSlabUnsafe || t.WallType == WallID.BlueDungeonUnsafe;
-                    bool IsDresser = Type == TileID.Dressers;
-                    int Style = t.TileFrameX / 36;
+                    int Style = t.TileFrameX / 36;// / 36;
+                    if (Type == TileID.Containers2)
+                        Style += 54;
                     bool DungeonChest = Type == 21 && Style != 0 && IsDungeon(x, y);
                     int PrimaryLoot = 0;
-                    switch (Style)
+                    if (UndergroundDesert)
                     {
-                        case 0:
-                            if (IsDungeonWall)
-                            {
-                                PrimaryLoot = ItemID.GoldenKey;
-                            }
-                            if (UndergroundDesert)
-                            {
-                                if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
-                                    PrimaryLoot = 52;
+                        if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
+                            PrimaryLoot = 52;
+                        else
+                            PrimaryLoot = ((y <= (WorldGen.desertHiveHigh * 3 + WorldGen.desertHiveLow * 4) / 7) ? Utils.SelectRandom(Main.rand, new short[]{4056, 4055, 4262, 4263}) : Utils.SelectRandom(Main.rand, new short[]{4061, 4062, 4276}));
+                    }
+                    else
+                    {
+                        switch (Style)
+                        {
+                            case 0:
+                                if (IsDungeonWall)
+                                {
+                                    PrimaryLoot = ItemID.GoldenKey;
+                                }
+                                break;
+                            case 1:
+                            case 2:
+                                if (DungeonChest)
+                                {
+                                    switch (CurrentDungeonLoot)
+                                    {
+                                        case 0:
+                                            PrimaryLoot = 329;
+                                            break;
+                                        case 1:
+                                            PrimaryLoot = 155;
+                                            break;
+                                        case 2:
+                                            PrimaryLoot = 156;
+                                            break;
+                                        case 3:
+                                            PrimaryLoot = 157;
+                                            break;
+                                        case 4:
+                                            PrimaryLoot = 163;
+                                            break;
+                                        case 5:
+                                            PrimaryLoot = 113;
+                                            break;
+                                        case 6:
+                                            PrimaryLoot = 3317;
+                                            break;
+                                        case 7:
+                                            PrimaryLoot = 164;
+                                            break;
+                                    }
+                                    CurrentDungeonLoot++;
+                                    if (CurrentDungeonLoot >= 8)
+                                        CurrentDungeonLoot = 0;
+                                }
+                                break;
+                            case 10: //Jungle chest
+                                PrimaryLoot = WorldGen.GetNextJungleChestItem();
+                                break;
+                            case 12:
+                                if(Main.rand.Next(3) < 2)
+                                {
+                                    PrimaryLoot = 832;
+                                }
                                 else
-                                    PrimaryLoot = ((y <= (WorldGen.desertHiveHigh * 3 + WorldGen.desertHiveLow * 4) / 7) ? Utils.SelectRandom(Main.rand, new short[]{4056, 4055, 4262, 4263}) : Utils.SelectRandom(Main.rand, new short[]{4061, 4062, 4276}));
-                            }
-                            break;
-                        case 1:
-                        case 2:
-                            if (DungeonChest)
-                            {
-                                switch (CurrentDungeonLoot)
                                 {
-                                    case 0:
-                                        PrimaryLoot = 329;
+                                    PrimaryLoot = 4281;
+                                }
+                                /*switch (Main.rand.Next(3))
+                                {
+                                    default:
+                                        PrimaryLoot = 159;
                                         break;
                                     case 1:
-                                        PrimaryLoot = 155;
+                                        PrimaryLoot = 65;
                                         break;
                                     case 2:
-                                        PrimaryLoot = 156;
+                                        PrimaryLoot = 158;
                                         break;
-                                    case 3:
-                                        PrimaryLoot = 157;
-                                        break;
-                                    case 4:
-                                        PrimaryLoot = 163;
-                                        break;
-                                    case 5:
-                                        PrimaryLoot = 113;
-                                        break;
-                                    case 6:
-                                        PrimaryLoot = 3317;
-                                        break;
-                                    case 7:
-                                        PrimaryLoot = 164;
-                                        break;
-                                }
-                                CurrentDungeonLoot++;
-                                if (CurrentDungeonLoot >= 8)
-                                    CurrentDungeonLoot = 0;
-                            }
-                            break;
-                        case 10: //Jungle chest
-                            PrimaryLoot = WorldGen.GetNextJungleChestItem();
-                            break;
-                        case 13:
-                            if(Main.rand.Next(3) < 2)
-                            {
-                                PrimaryLoot = 832;
-                            }
-                            else
-                            {
-                                PrimaryLoot = 4281;
-                            }
-                            /*switch (Main.rand.Next(3))
-                            {
-                                default:
-                                    PrimaryLoot = 159;
-                                    break;
-                                case 1:
-                                    PrimaryLoot = 65;
-                                    break;
-                                case 2:
-                                    PrimaryLoot = 158;
-                                    break;
-                            }*/
-                            break;
-                        case 17:
-                            if (Main.rand.Next(15) == 0)
-                                PrimaryLoot = 863;
-                            else
-                            {
-                                switch (CurrentWaterLoot)
+                                }*/
+                                break;
+                            case 13:
                                 {
-                                    case 0:
-                                        PrimaryLoot = 187;
-                                        break;
-                                    case 1:
-                                        PrimaryLoot = 186;
-                                        break;
-                                    case 2:
-                                        PrimaryLoot = 277;
-                                        break;
+                                    switch(Main.rand.Next(4))
+                                    {
+                                        case 0:
+                                            PrimaryLoot = 159;
+                                            break;
+                                        case 1:
+                                            PrimaryLoot = 65;
+                                            break;
+                                        case 2:
+                                            PrimaryLoot = 158;
+                                            break;
+                                        case 3:
+                                            PrimaryLoot = 2219;
+                                            break;
+                                    }
                                 }
-                                CurrentWaterLoot++;
-                                if (CurrentWaterLoot > 2)
-                                    CurrentWaterLoot = 0;
-                            }
-                            break;
-                        case 18: //Jungle
-                            PrimaryLoot = 1156;
-                            break;
-                        case 19: //Corruption
-                            PrimaryLoot = 1571;
-                            break;
-                        case 20: //Crimson
-                            PrimaryLoot = 1569;
-                            break;
-                        case 21: //Hallowed
-                            PrimaryLoot = 1260;
-                            break;
-                        case 22: //Ice
-                            PrimaryLoot = 1572;
-                            break;
+                                break;
+                            case 17:
+                                if (Main.rand.Next(15) == 0)
+                                    PrimaryLoot = 863;
+                                else
+                                {
+                                    switch (CurrentWaterLoot)
+                                    {
+                                        case 0:
+                                            PrimaryLoot = 187;
+                                            break;
+                                        case 1:
+                                            PrimaryLoot = 186;
+                                            break;
+                                        case 2:
+                                            PrimaryLoot = 277;
+                                            break;
+                                    }
+                                    CurrentWaterLoot++;
+                                    if (CurrentWaterLoot > 2)
+                                        CurrentWaterLoot = 0;
+                                }
+                                break;
+                            case 18: //Jungle
+                                PrimaryLoot = 1156;
+                                break;
+                            case 19: //Corruption
+                                PrimaryLoot = 1571;
+                                break;
+                            case 20: //Crimson
+                                PrimaryLoot = 1569;
+                                break;
+                            case 21: //Hallowed
+                                PrimaryLoot = 1260;
+                                break;
+                            case 22: //Ice
+                                PrimaryLoot = 1572;
+                                break;
+                        }
                     }
                     if (Style == 11 || PrimaryLoot == 0 && y >= Main.worldSurface + 25 && y <= Main.maxTilesY - 205 && (Type == 147 || Type == 161 || Type == 162)) //Ice Biome Loot
                     {
@@ -595,7 +619,6 @@ namespace nservermod1dot4
                     }
                     if (Type == 21 && (Style == 10 || PrimaryLoot == 211 || PrimaryLoot == 212 || PrimaryLoot == 213 ||PrimaryLoot == 753))
                     {
-
                         if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
                             PrimaryLoot = 52;
                     }

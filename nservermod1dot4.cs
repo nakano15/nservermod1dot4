@@ -34,7 +34,7 @@ namespace nservermod1dot4
 			_SinglePlayerMode = Main.netMode == 0;
             if(!Main.dedServ)
             {
-                RequestAssetIfExists<Texture2D>("nservermod1dot4/Interfaces/WorldSettingButton", out worldsettingsbuttontexture);
+                worldsettingsbuttontexture = ModContent.Request<Texture2D>("nservermod1dot4/Interfaces/WorldSettingButton");
             }
             worldsettingsui = new Interfaces.WorldSettingsInterface();
 		}
