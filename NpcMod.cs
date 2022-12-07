@@ -112,7 +112,7 @@ namespace nservermod1dot4
             {
                 if (!spawnInfo.PlayerInTown)
                 {
-                    float PlayerOnlineSpawnChance = 1f + nservermod1dot4.OnlinePlayers * (1f / 50);
+                    float PlayerOnlineSpawnChance = 1f + nservermod1dot4.OnlinePlayers * 0.02f;
                     if (Main.moonPhase == 0 && !Main.dayTime && !NPC.AnyNPCs(NPCID.Werewolf))
                     {
                         pool.Add(NPCID.Werewolf, (1f / 30) * PlayerOnlineSpawnChance);
@@ -180,7 +180,7 @@ namespace nservermod1dot4
                     }
                     if(spawnInfo.Player.ZoneSnow && spawnInfo.Player.ZoneDirtLayerHeight)
                     {
-                        pool.Add(NPCID.GiantTortoise, PlayerOnlineSpawnChance  * (1f / 100));
+                        pool.Add(NPCID.IceTortoise, PlayerOnlineSpawnChance  * (1f / 100));
                     }
                 }
                 if (spawnInfo.Player.ZoneBeach && spawnInfo.Water)

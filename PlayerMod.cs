@@ -23,7 +23,7 @@ namespace nservermod1dot4
 
         public override void OnEnterWorld(Player player)
         {
-
+            
         }
     }
 }

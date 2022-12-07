@@ -55,6 +55,7 @@ namespace nservermod1dot4
                         case TileID.CrimsonGrass:
                         case TileID.HallowedGrass:
                         case TileID.MushroomGrass:
+                        case TileID.Tombstones:
                             blockDamaged = true;
                             break;
                         default:
@@ -151,6 +152,11 @@ namespace nservermod1dot4
                             if (RootTile)
                                 WorldMod.AddTreePlantingPosition(x, y);
                         }
+                    }
+                    break;
+                case TileID.Heart:
+                    {
+                        WorldMod.TotalLifeCrystals--;
                     }
                     break;
             }

@@ -11,10 +11,12 @@ namespace nservermod1dot4
 {
 	public class WorldMod
 	{
+        public static int TotalLifeCrystals = 0;
         private static bool? EnableChestRespawn = null, EnableOreRespawn = null, EnableLifeCrystalRespawn = null, EnableDungeonReset = null, EnableWallOfFlesh = null,
             EnableSpiderWebRespawn = null, EnableShadowOrbRespawn = null, EnablePotsRespawn = null, EnableEnchantedSwordRespawn = null, EnableSurfaceProtection = null, 
             EnableCustomModSpawns = null, EnableHarderDungeonAndSkeletron = null;
-        
+        private static int MaxLifeCrystals = 400;
+
         public static bool? IsChestRespawnEnabled
         {
             get { if (EnableChestRespawn.HasValue) return EnableChestRespawn.Value; return Main.netMode == 2; }
@@ -79,11 +81,23 @@ namespace nservermod1dot4
         private static List<Point> TreePlantingPosition = new List<Point>();
         private static List<int[]> DresserLoot = new List<int[]>();
         
-        public static void InitializeWorldMod()
+        internal static void CountLifeCrystals()
         {
-            TreePlantingPosition = new List<Point>();
-            InitializeDresserLoots();
+            TotalLifeCrystals = 0;
+            if(Main.netMode == 1) return;
+            for (int x = 0; x < Main.maxTilesX; x++)
+            {
+                for (int y = 0; y < Main.maxTilesY; y++)
+                {
+                    if(Main.tile[x, y] != null && Main.tile[x, y].HasTile && Main.tile[x, y].TileType == Terraria.ID.TileID.Heart)
+                    {
+                        TotalLifeCrystals++;
+                    }
+                }
+            }
+            TotalLifeCrystals /= 4;
         }
+
         public static void InitializeDresserLoots()
         {
             DresserLoot = new List<int[]>();
@@ -166,12 +180,22 @@ namespace nservermod1dot4
         public static void Initialize()
         {
             nservermod1dot4.IsInSinglePlayer = Main.netMode == 0 && !Main.dedServ;
+            TreePlantingPosition = new List<Point>();
+            InitializeDresserLoots();
+            CountLifeCrystals();
+            GetMaxLifeCrystalValue();
+        }
+        
+        private static void GetMaxLifeCrystalValue()
+        {
+            MaxLifeCrystals = 100 + (int)((float)(Main.maxTilesX * Main.maxTilesY) / 5040000);
         }
 
         internal static void AddTreePlantingPosition(int X, int Y)
         {
             TreePlantingPosition.Add(new Point(X, Y));
         }
+
         public static void PreUpdate()
         {
             //if (Main.netMode < 2)
@@ -282,6 +306,7 @@ namespace nservermod1dot4
 
         private static void PlaceLifeCrystal()
         {
+            if (TotalLifeCrystals >= MaxLifeCrystals) return;
             int x = Main.rand.Next(40, Main.maxTilesX - 40), y = Main.rand.Next((int)(WorldGen.worldSurface + 20), Main.maxTilesY - 300);
             Tile tile = Main.tile[x, y];
             if (y < Main.worldSurface)
@@ -297,6 +322,7 @@ namespace nservermod1dot4
                     return;
             }
             WorldGen.AddLifeCrystal(x, y);
+            TotalLifeCrystals++;
         }
 
         private static void PlaceNewPots()
