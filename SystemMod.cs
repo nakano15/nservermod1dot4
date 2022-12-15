@@ -69,7 +69,7 @@ namespace nservermod1dot4
         {
 			if(Main.netMode == 1 && nservermod1dot4.Apocalypse && Main.LocalPlayer.ZoneOverworldHeight)
 			{
-				scale *= 0.8f;
+				scale *= 0.9f;
 			}
         }
 
