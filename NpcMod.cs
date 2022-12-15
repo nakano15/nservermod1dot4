@@ -60,6 +60,24 @@ namespace nservermod1dot4
             }
         }
 
+        public override void SetupShop(int type, Chest shop, ref int nextSlot)
+        {
+            if (type == NPCID.Golfer)
+            {
+                for(int i = 0; i < shop.item.Length; i++)
+                {
+                    if(shop.item[i].type == ItemID.LawnMower)
+                    {
+                        shop.item[i].SetDefaults(0);
+                    }
+                }
+            }
+            if (type == NPCID.Merchant)
+            {
+                shop.item[nextSlot++].SetDefaults(ItemID.Bottle);
+            }
+        }
+
         public override void PostAI(NPC npc)
         {
             if (Main.netMode <= 1)
@@ -151,17 +169,6 @@ namespace nservermod1dot4
                     {
                         pool.Add(NPCID.Wolf, (1f / 250) * PlayerOnlineSpawnChance);
                     }
-                    if(spawnInfo.Player.ZoneDirtLayerHeight)
-                    {
-                        if(spawnInfo.Player.ZoneSnow)
-                        {
-                            pool.Add(NPCID.IceMimic, (1f / 1000) * PlayerOnlineSpawnChance);
-                        }
-                        else
-                        {
-                            pool.Add(NPCID.Mimic, (1f / 1000) * PlayerOnlineSpawnChance);
-                        }
-                    }
                     if(spawnInfo.Player.ZoneGraveyard)
                     {
                         pool.Add(NPCID.Reaper, PlayerOnlineSpawnChance * (1f / 100));
@@ -181,6 +188,70 @@ namespace nservermod1dot4
                     if(spawnInfo.Player.ZoneSnow && spawnInfo.Player.ZoneDirtLayerHeight)
                     {
                         pool.Add(NPCID.IceTortoise, PlayerOnlineSpawnChance  * (1f / 100));
+                    }
+                    if (spawnInfo.Player.ZoneUnderworldHeight)
+                    {
+                        pool.Add(NPCID.RedDevil, PlayerOnlineSpawnChance * (1f / 100));
+                    }
+                    if (spawnInfo.Player.ZoneDungeon)
+                    {
+                        pool.Add(NPCID.Paladin, PlayerOnlineSpawnChance * (1f / 250));
+                        pool.Add(NPCID.BoneLee, PlayerOnlineSpawnChance * (1f / 100));
+                        pool.Add(NPCID.SkeletonSniper, PlayerOnlineSpawnChance * (1f / 100));
+                    }
+                    if(spawnInfo.Player.ZoneCorrupt)
+                    {
+                        pool.Add(NPCID.BigMimicCorruption, PlayerOnlineSpawnChance * (1f / 250));
+                    }
+                    if(spawnInfo.Player.ZoneCrimson)
+                    {
+                        pool.Add(NPCID.BigMimicCrimson, PlayerOnlineSpawnChance * (1f / 250));
+                    }
+                    if(spawnInfo.Player.ZoneJungle)
+                    {
+                        pool.Add(NPCID.BigMimicJungle, PlayerOnlineSpawnChance * (1f / 250));
+                    }
+                    if(spawnInfo.Player.ZoneHallow)
+                    {
+                        pool.Add(NPCID.BigMimicHallow, PlayerOnlineSpawnChance * (1f / 250));
+                    }
+                    if(spawnInfo.Player.ZoneSnow)
+                    {
+                        pool.Add(NPCID.IceMimic, PlayerOnlineSpawnChance * (1f / 150));
+                    }
+                    else
+                    {
+                        pool.Add(NPCID.Mimic, PlayerOnlineSpawnChance * (1f / 150));
+                    }
+                    if(Main.netMode == 2 && nservermod1dot4.Apocalypse && spawnInfo.Player.statLifeMax >= 200)
+                    {
+                        if(spawnInfo.Player.ZoneOverworldHeight)
+                        {
+                            pool.Add(NPCID.Demon, PlayerOnlineSpawnChance * (1f / 20));
+                            pool.Add(NPCID.VoodooDemon, PlayerOnlineSpawnChance * (1f / 80));
+                            pool.Add(NPCID.FireImp, PlayerOnlineSpawnChance * (1f / 40));
+                            pool.Add(NPCID.BurningSphere, PlayerOnlineSpawnChance * (1f / 15));
+                        }
+                        if(spawnInfo.Player.ZoneDirtLayerHeight || spawnInfo.Player.ZoneRockLayerHeight)
+                        {
+                            pool.Add(NPCID.BlazingWheel, PlayerOnlineSpawnChance * (1f / 50));
+                            pool.Add(NPCID.RuneWizard, PlayerOnlineSpawnChance * (1f / 150));
+                        }
+                        if(spawnInfo.Player.ZoneCorrupt)
+                        {
+                            pool.Add(NPCID.VileSpit, PlayerOnlineSpawnChance * (1f / 50));
+                            pool.Add(NPCID.PigronCorruption, PlayerOnlineSpawnChance * (1f / 150));
+                        }
+                        if(spawnInfo.Player.ZoneCrimson)
+                        {
+                            pool.Add(NPCID.FloatyGross, PlayerOnlineSpawnChance * (1f / 100));
+                            pool.Add(NPCID.PigronCrimson, PlayerOnlineSpawnChance * (1f / 150));
+                        }
+                        if(spawnInfo.Player.ZoneJungle)
+                        {
+                            pool.Add(NPCID.LihzahrdCrawler, PlayerOnlineSpawnChance * (1f / 100));
+                            pool.Add(NPCID.PigronCrimson, PlayerOnlineSpawnChance * (1f / 150));
+                        }
                     }
                 }
                 if (spawnInfo.Player.ZoneBeach && spawnInfo.Water)

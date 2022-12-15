@@ -104,6 +104,7 @@ namespace nservermod1dot4
                 case 185: //Decorative stones
                 case 186:
                 case 187:
+                case TileID.Meteorite:
                     return true;
             }
         }

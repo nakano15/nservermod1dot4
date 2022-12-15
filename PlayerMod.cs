@@ -11,6 +11,11 @@ namespace nservermod1dot4
 {
 	public class PlayerMod : ModPlayer
 	{
+        public override void ResetEffects()
+        {
+            
+        }
+
         public override void PlayerConnect(Player player)
         {
 

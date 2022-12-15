@@ -184,6 +184,7 @@ namespace nservermod1dot4
             InitializeDresserLoots();
             CountLifeCrystals();
             GetMaxLifeCrystalValue();
+            ApocalypseWorldSpawn();
         }
         
         private static void GetMaxLifeCrystalValue()
@@ -1624,6 +1625,29 @@ namespace nservermod1dot4
                     if (Main.rand.Next(100) == 0)
                     {
                         items[Pos].SetDefaults(ItemID.NeptunesShell, true);
+                    }
+                }
+            }
+        }
+
+        public static void ApocalypseWorldSpawn()
+        {
+            if (!nservermod1dot4.Apocalypse || Main.netMode != 2)
+            {
+                return;
+            }
+            for(int y = 0; y < Main.worldSurface; y++)
+            {
+                for(int x = 10; x < Main.maxTilesX - 10; x++)
+                {
+                    Tile tile = Main.tile[x, y];
+                    switch(tile.TileType)
+                    {
+                        case TileID.Grass:
+                        case TileID.GolfGrass:
+                        case TileID.Dirt:
+                            tile.TileType = TileID.Ash;
+                            break;
                     }
                 }
             }
