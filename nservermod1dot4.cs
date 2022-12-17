@@ -13,7 +13,7 @@ namespace nservermod1dot4
 {
 	public class nservermod1dot4 : Mod
 	{
-        public const bool Apocalypse = true;
+        public const bool Apocalypse = false;
 		private static bool _SinglePlayerMode = false;
 		private static nservermod1dot4 instance;
 		public static bool IsInSinglePlayer { get { return _SinglePlayerMode; } internal set { _SinglePlayerMode = value; } }

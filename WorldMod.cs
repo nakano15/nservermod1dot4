@@ -39,7 +39,7 @@ namespace nservermod1dot4
         }
         public static bool? IsWofEnabled
         {
-            get { if (EnableWallOfFlesh.HasValue) return EnableWallOfFlesh.Value; return Main.netMode == 0; }
+            get { if (EnableWallOfFlesh.HasValue) return EnableWallOfFlesh.Value; return true; }
             set { EnableWallOfFlesh = value; }
         }
         public static bool? IsSpiderWebRespawnEnabled
@@ -81,6 +81,8 @@ namespace nservermod1dot4
         private static List<Point> TreePlantingPosition = new List<Point>();
         private static List<int[]> DresserLoot = new List<int[]>();
         
+        private static float WorldDifficultyLevel = 2;
+
         internal static void CountLifeCrystals()
         {
             TotalLifeCrystals = 0;
@@ -244,6 +246,17 @@ namespace nservermod1dot4
                     NetMessage.SendObjectPlacment(Main.myPlayer, x, y, to.type, to.style, to.alternate, to.random, 1);
                     //NetMessage.SendTileSquare(Main.myPlayer, x, y, 1, 2);
                 }
+            }
+        }
+
+        private static void OvertimeDifficultyDecay()
+        {
+            float LastDifficultyValue = WorldDifficultyLevel;
+            WorldDifficultyLevel -= 0.001f;
+            if (WorldDifficultyLevel < 0) WorldDifficultyLevel = 0;
+            if((int)WorldDifficultyLevel != (int)LastDifficultyValue)
+            {
+                
             }
         }
         

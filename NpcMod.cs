@@ -175,53 +175,61 @@ namespace nservermod1dot4
                     }
                     if(spawnInfo.Player.ZoneCorrupt)
                     {
-                        pool.Add(NPCID.Corruptor, PlayerOnlineSpawnChance * (1f / 100));
+                        pool.Add(NPCID.Corruptor, PlayerOnlineSpawnChance * (1f / 200));
                     }
                     if(spawnInfo.Player.ZoneCrimson)
                     {
-                        pool.Add(NPCID.Herpling, PlayerOnlineSpawnChance  * (1f / 100));
+                        pool.Add(NPCID.Herpling, PlayerOnlineSpawnChance  * (1f / 200));
                     }
                     if(spawnInfo.Player.ZoneJungle)
                     {
-                        pool.Add(NPCID.GiantTortoise, PlayerOnlineSpawnChance  * (1f / 100));
+                        pool.Add(NPCID.GiantTortoise, PlayerOnlineSpawnChance  * (1f / 200));
                     }
                     if(spawnInfo.Player.ZoneSnow && spawnInfo.Player.ZoneDirtLayerHeight)
                     {
-                        pool.Add(NPCID.IceTortoise, PlayerOnlineSpawnChance  * (1f / 100));
+                        pool.Add(NPCID.IceTortoise, PlayerOnlineSpawnChance  * (1f / 200));
                     }
-                    if (spawnInfo.Player.ZoneUnderworldHeight)
+                    if (spawnInfo.Player.ZoneUnderworldHeight && !NPC.AnyNPCs(NPCID.RedDevil))
                     {
-                        pool.Add(NPCID.RedDevil, PlayerOnlineSpawnChance * (1f / 100));
+                        pool.Add(NPCID.RedDevil, PlayerOnlineSpawnChance * (1f / 200));
                     }
                     if (spawnInfo.Player.ZoneDungeon)
                     {
-                        pool.Add(NPCID.Paladin, PlayerOnlineSpawnChance * (1f / 250));
-                        pool.Add(NPCID.BoneLee, PlayerOnlineSpawnChance * (1f / 100));
-                        pool.Add(NPCID.SkeletonSniper, PlayerOnlineSpawnChance * (1f / 100));
+                        pool.Add(NPCID.Paladin, PlayerOnlineSpawnChance * (1f / 2500));
+                        pool.Add(NPCID.BoneLee, PlayerOnlineSpawnChance * (1f / 1000));
+                        pool.Add(NPCID.SkeletonSniper, PlayerOnlineSpawnChance * (1f / 1000));
                     }
                     if(spawnInfo.Player.ZoneCorrupt)
                     {
-                        pool.Add(NPCID.BigMimicCorruption, PlayerOnlineSpawnChance * (1f / 250));
+                        pool.Add(NPCID.BigMimicCorruption, PlayerOnlineSpawnChance * (1f / 1000));
                     }
                     if(spawnInfo.Player.ZoneCrimson)
                     {
-                        pool.Add(NPCID.BigMimicCrimson, PlayerOnlineSpawnChance * (1f / 250));
+                        pool.Add(NPCID.BigMimicCrimson, PlayerOnlineSpawnChance * (1f / 1000));
                     }
                     if(spawnInfo.Player.ZoneJungle)
                     {
-                        pool.Add(NPCID.BigMimicJungle, PlayerOnlineSpawnChance * (1f / 250));
+                        pool.Add(NPCID.BigMimicJungle, PlayerOnlineSpawnChance * (1f / 1000));
                     }
                     if(spawnInfo.Player.ZoneHallow)
                     {
-                        pool.Add(NPCID.BigMimicHallow, PlayerOnlineSpawnChance * (1f / 250));
+                        pool.Add(NPCID.BigMimicHallow, PlayerOnlineSpawnChance * (1f / 1000));
                     }
                     if(spawnInfo.Player.ZoneSnow)
                     {
-                        pool.Add(NPCID.IceMimic, PlayerOnlineSpawnChance * (1f / 150));
+                        pool.Add(NPCID.IceMimic, PlayerOnlineSpawnChance * (1f / 250));
+                        if(spawnInfo.Player.ZoneCorrupt)
+                        {
+                            pool.Add(NPCID.PigronCorruption, PlayerOnlineSpawnChance * (1f / 250));
+                        }
+                        if(spawnInfo.Player.ZoneCrimson)
+                        {
+                            pool.Add(NPCID.PigronCrimson, PlayerOnlineSpawnChance * (1f / 250));
+                        }
                     }
                     else
                     {
-                        pool.Add(NPCID.Mimic, PlayerOnlineSpawnChance * (1f / 150));
+                        pool.Add(NPCID.Mimic, PlayerOnlineSpawnChance * (1f / 250));
                     }
                     if(Main.netMode == 2 && nservermod1dot4.Apocalypse && spawnInfo.Player.statLifeMax >= 200)
                     {

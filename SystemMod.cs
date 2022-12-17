@@ -86,11 +86,11 @@ namespace nservermod1dot4
 
         public override void ModifyHardmodeTasks(List<GenPass> list)
         {
-			/*list.Clear();
+			list.Clear();
 			list.Add(new Terraria.GameContent.Generation.PassLegacy("Disable Hardmode", delegate(GenerationProgress progress, Terraria.IO.GameConfiguration configuration)
 			{
 				Main.hardMode = false;
-			}));*/
+			}));
         }
     }
 }
