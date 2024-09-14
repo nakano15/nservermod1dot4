@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.UI;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using Terraria.WorldBuilding;
 
 namespace nservermod1dot4
 {
@@ -243,7 +244,7 @@ namespace nservermod1dot4
                 TileObject to;
                 if (TileObject.CanPlace(x, y, Type, Style, 1, out to) && TileObject.Place(to) && Main.netMode > 0)
                 {
-                    NetMessage.SendObjectPlacment(Main.myPlayer, x, y, to.type, to.style, to.alternate, to.random, 1);
+                    NetMessage.SendObjectPlacement(Main.myPlayer, x, y, to.type, to.style, to.alternate, to.random, 1);
                     //NetMessage.SendTileSquare(Main.myPlayer, x, y, 1, 2);
                 }
             }
@@ -321,7 +322,7 @@ namespace nservermod1dot4
         private static void PlaceLifeCrystal()
         {
             if (TotalLifeCrystals >= MaxLifeCrystals) return;
-            int x = Main.rand.Next(40, Main.maxTilesX - 40), y = Main.rand.Next((int)(WorldGen.worldSurface + 20), Main.maxTilesY - 300);
+            int x = Main.rand.Next(40, Main.maxTilesX - 40), y = Main.rand.Next((int)(GenVars.worldSurface + 20), Main.maxTilesY - 300);
             Tile tile = Main.tile[x, y];
             if (y < Main.worldSurface)
             {
@@ -497,7 +498,7 @@ namespace nservermod1dot4
                         if(WorldGen.getGoodWorldGen && Main.rand.Next(ForTheWorthyTrollLootRate) == 0)
                             PrimaryLoot = 52;
                         else
-                            PrimaryLoot = ((y <= (WorldGen.desertHiveHigh * 3 + WorldGen.desertHiveLow * 4) / 7) ? Utils.SelectRandom(Main.rand, new short[]{4056, 4055, 4262, 4263}) : Utils.SelectRandom(Main.rand, new short[]{4061, 4062, 4276}));
+                            PrimaryLoot = ((y <= (GenVars.desertHiveHigh * 3 + GenVars.desertHiveLow * 4) / 7) ? Utils.SelectRandom(Main.rand, new short[]{4056, 4055, 4262, 4263}) : Utils.SelectRandom(Main.rand, new short[]{4061, 4062, 4276}));
                     }
                     else
                     {
@@ -860,11 +861,11 @@ namespace nservermod1dot4
                         {
                             if (Main.rand.Next(2) == 0)
                             {
-                                items[Pos].SetDefaults(WorldGen.copperBar, true);
+                                items[Pos].SetDefaults(GenVars.copperBar, true);
                             }
                             else
                             {
-                                items[Pos].SetDefaults(WorldGen.ironBar, true);
+                                items[Pos].SetDefaults(GenVars.ironBar, true);
                             }
                             items[Pos].stack = Main.rand.Next(8) + 3;
                             Pos++;
@@ -1063,11 +1064,11 @@ namespace nservermod1dot4
                         {
                             if (Main.rand.Next(2) == 0)
                             {
-                                items[Pos].SetDefaults(WorldGen.ironBar, true);
+                                items[Pos].SetDefaults(GenVars.ironBar, true);
                             }
                             else
                             {
-                                items[Pos].SetDefaults(WorldGen.silverBar, true);
+                                items[Pos].SetDefaults(GenVars.silverBar, true);
                             }
                             items[Pos].stack = Main.rand.Next(11) + 5;
                             Pos++;
@@ -1190,7 +1191,7 @@ namespace nservermod1dot4
                         }
                         else
                         {
-                            if (Main.rand.Next(20) == 0 && y > WorldGen.lavaLine)
+                            if (Main.rand.Next(20) == 0 && y > GenVars.lavaLine)
                             {
                                 items[Pos].SetDefaults(906, true);
                                 items[Pos].Prefix(-1);
@@ -1285,11 +1286,11 @@ namespace nservermod1dot4
                         {
                             if (Main.rand.Next(2) == 0)
                             {
-                                items[Pos].SetDefaults(WorldGen.goldBar, true);
+                                items[Pos].SetDefaults(GenVars.goldBar, true);
                             }
                             else
                             {
-                                items[Pos].SetDefaults(WorldGen.silverBar, true);
+                                items[Pos].SetDefaults(GenVars.silverBar, true);
                             }
                             items[Pos].stack = Main.rand.Next(8) + 3;
                             Pos++;
@@ -1477,7 +1478,7 @@ namespace nservermod1dot4
                             if (Main.rand.Next(2) == 0)
                                 items[Pos].SetDefaults(117, true);
                             else
-                                items[Pos].SetDefaults(WorldGen.goldBar, true);
+                                items[Pos].SetDefaults(GenVars.goldBar, true);
                             items[Pos].stack = Main.rand.Next(16) + 15;
                             Pos++;
                         }
@@ -1669,12 +1670,12 @@ namespace nservermod1dot4
         private static void RespawnSpiderWebs()
         {
             int x = Main.rand.Next(20, Main.maxTilesX - 20),
-                y = Main.rand.Next((int)WorldGen.worldSurfaceHigh, Main.maxTilesY - 20);
+                y = Main.rand.Next((int)GenVars.worldSurfaceHigh, Main.maxTilesY - 20);
             Tile tile = Main.tile[x, y];
             if(!tile.HasTile && (y > Main.worldSurface || (tile.WallType > 0 && !TileID.Sets.HousingWalls[tile.WallType])))
             {
                 byte MaxAttempts = 20;
-                while(!tile.HasTile && y > WorldGen.worldSurfaceLow)
+                while(!tile.HasTile && y > GenVars.worldSurfaceLow)
                 {
                     y--;
                     MaxAttempts--;
@@ -1724,25 +1725,25 @@ namespace nservermod1dot4
                 {
                     case CopperSpawn:
                         y = Main.rand.Next((int)Main.worldSurface + 30, Main.maxTilesY - 130);
-                        TileID = WorldGen.copper;
+                        TileID = GenVars.copper;
                         Strength = Main.rand.Next(3, 7);
                         Steps = Main.rand.Next(3, 7);
                         break;
                     case IronSpawn:
                         y = Main.rand.Next((int)Main.worldSurface + 30, Main.maxTilesY - 130);
-                        TileID = WorldGen.iron;
+                        TileID = GenVars.iron;
                         Strength = Main.rand.Next(3, 6);
                         Steps = Main.rand.Next(3, 6);
                         break;
                     case SilverSpawn:
                         y = Main.rand.Next((int)Main.worldSurface + 30, Main.maxTilesY - 130);
-                        TileID = WorldGen.silver;
+                        TileID = GenVars.silver;
                         Strength = Main.rand.Next(3, 6);
                         Steps = Main.rand.Next(3, 6);
                         break;
                     case GoldSpawn:
                         y = Main.rand.Next((int)Main.rockLayer, Main.maxTilesY - 130);
-                        TileID = WorldGen.gold;
+                        TileID = GenVars.gold;
                         Strength = Main.rand.Next(3, 6);
                         Steps = Main.rand.Next(3, 6);
                         break;

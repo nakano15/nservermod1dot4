@@ -17,7 +17,7 @@ namespace nservermod1dot4
             
         }
 
-        public override void PlayerConnect(Player player)
+        public override void PlayerConnect()
         {
 
         }
@@ -27,7 +27,7 @@ namespace nservermod1dot4
             
         }
 
-        public override void OnEnterWorld(Player player)
+        public override void OnEnterWorld()
         {
             
         }
