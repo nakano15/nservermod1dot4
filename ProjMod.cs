@@ -14,7 +14,7 @@ namespace nservermod1dot4
 	{
         public override bool PreAI(Projectile projectile)
         {
-            if (projectile.type == Terraria.ID.ProjectileID.Tombstone)
+            if (projectile.type == ProjectileID.Tombstone)
             {
                 projectile.Kill();
                 return false;

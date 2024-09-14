@@ -49,7 +49,6 @@ namespace nservermod1dot4
 				nservermod1dot4.GetMinuteValue = (byte)nservermod1dot4.CurrentTime.Minute;
 			else
 				nservermod1dot4.GetMinuteValue = 255;
-			nservermod1dot4.WofSpawnMessageTimes();
         }
 
         public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
@@ -86,11 +85,29 @@ namespace nservermod1dot4
 
         public override void ModifyHardmodeTasks(List<GenPass> list)
         {
-			list.Clear();
-			list.Add(new Terraria.GameContent.Generation.PassLegacy("Disable Hardmode", delegate(GenerationProgress progress, Terraria.IO.GameConfiguration configuration)
+			if (WorldMod.EnteredHardmodeOnce)
 			{
-				Main.hardMode = false;
-			}));
+				for (int i = 0; i < list.Count; i++)
+				{
+					switch (list[i].Name)
+					{
+						case "Hardmode Good Remix":
+						case "Hardmode Good":
+						case "Hardmode Evil":
+						case "Hardmode Walls":
+							list.RemoveAt(i);
+							i--;
+							break;
+					}
+				}
+			}
+			else
+			{
+				list.Add(new Terraria.GameContent.Generation.PassLegacy("Flip Entered Hardmode Flag", delegate(GenerationProgress progress, Terraria.IO.GameConfiguration configuration)
+				{
+					WorldMod.EnteredHardmodeOnce = true;
+				}));
+			}
         }
     }
 }

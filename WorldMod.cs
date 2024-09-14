@@ -12,11 +12,14 @@ namespace nservermod1dot4
 {
 	public class WorldMod
 	{
+        internal static bool EnteredHardmodeOnce = false;
         public static int TotalLifeCrystals = 0;
         private static bool? EnableChestRespawn = null, EnableOreRespawn = null, EnableLifeCrystalRespawn = null, EnableDungeonReset = null, EnableWallOfFlesh = null,
             EnableSpiderWebRespawn = null, EnableShadowOrbRespawn = null, EnablePotsRespawn = null, EnableEnchantedSwordRespawn = null, EnableSurfaceProtection = null, 
             EnableCustomModSpawns = null, EnableHarderDungeonAndSkeletron = null;
         private static int MaxLifeCrystals = 400;
+        public static byte DungeonResetTime = 0, HardmodeResetTime = 0;
+        const byte DungeonResetMaxTime = 3,  HardmodeResetMaxTime = 6;
 
         public static bool? IsChestRespawnEnabled
         {
@@ -77,6 +80,19 @@ namespace nservermod1dot4
         {
             get { if (EnableCustomModSpawns.HasValue) return EnableCustomModSpawns.Value; return Main.netMode == 2; }
             set { EnableCustomModSpawns = value; }
+        }
+
+        internal static void RefreshDungeonTime()
+        {
+            if (IsDungeonResetEnabled.Value)
+            {
+                DungeonResetTime = DungeonResetMaxTime;
+            }
+        }
+
+        internal static void RefreshHardmodeTime()
+        {
+            HardmodeResetTime = HardmodeResetMaxTime;
         }
 
         private static List<Point> TreePlantingPosition = new List<Point>();
@@ -263,34 +279,71 @@ namespace nservermod1dot4
         
         public static void UpdateHourlyRespawn()
         {
+            if (nservermod1dot4.GetMinuteValue == 255) return;
             if (nservermod1dot4.GetHourValue < 255 && IsChestRespawnEnabled.Value)
             {
                 RefillChests();
             }
+            if (Main.hardMode)
+            {
+                if (HardmodeResetTime > 1)
+                {
+                    if (nservermod1dot4.GetMinuteValue == 0)
+                    {
+                        HardmodeResetTime -= 1;
+                        nservermod1dot4.SendMessage("Hardmode will stay up for "+DungeonResetTime+" hour"+(DungeonResetTime > 1 ? "s" : "")+".", 255, 128, 128);
+                    }
+                }
+                else
+                {
+                    if (nservermod1dot4.GetMinuteValue == 55)
+                    {
+                        nservermod1dot4.SendMessage("World will return to Pre-Hardmode in 5 minutes.", 255, 128, 128);
+                    }
+                    else if (nservermod1dot4.GetMinuteValue == 0)
+                    {
+                        Main.hardMode = false;
+                        nservermod1dot4.SendMessage("World returned to Pre-Hardmode. Kill Wall of Flesh again to restore Hardmode.", 255, 128, 128);
+                        HardmodeResetTime = 0;
+                    }
+                }
+            }
             if (NPC.downedBoss3 && IsDungeonResetEnabled.Value)
             {
-                if (nservermod1dot4.GetMinuteValue == 55 && nservermod1dot4.GetHourValue < 255 && nservermod1dot4.GetHourValue % 2 == 1)
+                if (DungeonResetTime > 1)
                 {
-                    nservermod1dot4.SendMessage("The dungeon will be resetted in 5 minutes. Everyone leave it.", 255, 128, 128);
+                    if (nservermod1dot4.GetMinuteValue == 0)
+                    {
+                        DungeonResetTime -= 1;
+                        nservermod1dot4.SendMessage("The dungeon will close in "+DungeonResetTime+" hour"+(DungeonResetTime > 1 ? "s" : "")+".", 255, 128, 128);
+                    }
                 }
-                else if (nservermod1dot4.GetMinuteValue == 0 && nservermod1dot4.GetHourValue % 2 == 0)
+                else
                 {
-                    NPC.downedBoss3 = false;
-                    if (NPC.AnyNPCs(NPCID.Clothier))
+                    if (nservermod1dot4.GetMinuteValue == 55)
                     {
-                        Main.npc[NPC.FindFirstNPC(NPCID.Clothier)].Transform(NPCID.OldMan);
-                        nservermod1dot4.SendMessage("The dungeon has been resetted. The clothier was cursed again.", 255, 0, 0);
+                        nservermod1dot4.SendMessage("The dungeon will be resetted in 5 minutes. Everyone leave it.", 255, 128, 128);
                     }
-                    else
+                    else if (nservermod1dot4.GetMinuteValue == 0)
                     {
-                        nservermod1dot4.SendMessage("The dungeon has been resetted. Skeletron resurged.", 255, 128, 128);
-                    }
-                    for (int i = 0; i < 255; i++)
-                    {
-                        if (Main.player[i].active && Main.player[i].ZoneDungeon)
+                        NPC.downedBoss3 = false;
+                        if (NPC.AnyNPCs(NPCID.Clothier))
                         {
-                            nservermod1dot4.SendMessage("<Skeletron> Some fools are eager to join the dead. So be it.", 255, 0, 0);
-                            break;
+                            Main.npc[NPC.FindFirstNPC(NPCID.Clothier)].Transform(NPCID.OldMan);
+                            nservermod1dot4.SendMessage("The dungeon has been resetted. The clothier was cursed again.", 255, 0, 0);
+                        }
+                        else
+                        {
+                            nservermod1dot4.SendMessage("The dungeon has been resetted. Skeletron resurged.", 255, 128, 128);
+                        }
+                        DungeonResetTime = 0;
+                        for (int i = 0; i < 255; i++)
+                        {
+                            if (Main.player[i].active && Main.player[i].ZoneDungeon)
+                            {
+                                nservermod1dot4.SendMessage("<Skeletron> Some fools are eager to join the dead. So be it.", 255, 0, 0);
+                                break;
+                            }
                         }
                     }
                 }
@@ -1803,7 +1856,7 @@ namespace nservermod1dot4
                             MaxAttempts = -1;
                             break;
                         }
-                        if(tile.WallType > 0 && Terraria.ID.TileID.Sets.HousingWalls[tile.WallType])
+                        if(Terraria.ID.TileID.Sets.HousingWalls[tile.TileType] || (tile.WallType > 0 && Main.wallHouse[tile.WallType]))
                         {
                             MaxAttempts = -1;
                             break;

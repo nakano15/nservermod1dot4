@@ -16,7 +16,7 @@ namespace nservermod1dot4
             return nservermod1dot4.IsInSinglePlayer || nservermod1dot4.LocalPlayerHasPermissionToBuild() || 
             type == 13 || (j >= Main.worldSurface - 20 && (type != TileID.Containers && type != TileID.Containers2) || ((type == TileID.Torches || type == TileID.Platforms || type == TileID.Rope || type == TileID.SilkRope || type == TileID.VineRope || type == TileID.WebRope || type == 29 || type == TileID.Campfire) && !TileID.Sets.HousingWalls[Main.tile[i, j].WallType]));
         }
-
+        
         public override bool CanExplode(int i, int j, int type)
         {
             return nservermod1dot4.IsInSinglePlayer || nservermod1dot4.LocalPlayerHasPermissionToBuild() || (j >= Main.worldSurface - 20 && !TileID.Sets.HousingWalls[type]);

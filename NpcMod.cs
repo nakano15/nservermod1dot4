@@ -62,19 +62,26 @@ namespace nservermod1dot4
 
         public override void ModifyActiveShop(NPC npc, string shopName, Item[] items)
         {
-            if (type == NPCID.Golfer)
+            if (npc.type == NPCID.Golfer)
             {
-                for(int i = 0; i < shop.item.Length; i++)
+                for(int i = 0; i < items.Length; i++)
                 {
-                    if(shop.item[i].type == ItemID.LawnMower)
+                    if(items[i].type == ItemID.LawnMower)
                     {
-                        shop.item[i].SetDefaults(0);
+                        items[i].SetDefaults(0);
                     }
                 }
             }
-            if (type == NPCID.Merchant)
+            if (npc.type == NPCID.Merchant)
             {
-                shop.item[nextSlot++].SetDefaults(ItemID.Bottle);
+                foreach (Item i in items)
+                {
+                    if (i.type == 0)
+                    {
+                        i.SetDefaults(ItemID.Bottle);
+                        break;
+                    }
+                }
             }
         }
 
@@ -84,16 +91,6 @@ namespace nservermod1dot4
                 return;
             switch (npc.type)
             {
-                case NPCID.WallofFlesh:
-                    {
-                        if (!WorldMod.IsWofEnabled.Value)
-                        {
-                            npc.active = false;
-                            npc.netUpdate = true;
-                            nservermod1dot4.WofSpawnMessages = 0;
-                        }
-                    }
-                    break;
                 case NPCID.SkeletronHead:
                     if (npc.ai[2] == 0)
                     {
@@ -275,7 +272,12 @@ namespace nservermod1dot4
 
         public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
         {
-            
+            switch (npc.type)
+            {
+                case NPCID.SkeletronHead:
+                    WorldMod.RefreshDungeonTime();
+                    return;
+            }
         }
 
         public bool IsEngagingNpc(int NpcID, Player player)

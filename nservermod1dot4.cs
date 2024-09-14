@@ -88,40 +88,5 @@ namespace nservermod1dot4
         {
             NetMod.ReceiveMessage((NetMod.MessageIDs)reader.ReadByte(), reader, whoAmI);
         }
-
-        internal static void WofSpawnMessageTimes()
-        {
-            if (WofSpawnMessages < 255)
-            {
-                WofSpawnMessages++;
-                if (WofSpawnMessages == 10)
-                {
-                    SendMessage("<Wall of Flesh> *Nhac!*", 255, 0, 0);
-                }
-                if (WofSpawnMessages == 70)
-                {
-                    SendMessage("<Wall of Flesh> *Crunch, Munch, Munch, Munch.*", 255, 0, 0);
-                }
-                if (WofSpawnMessages == 130)
-                {
-                    SendMessage("<Wall of Flesh> *Gulp.*", 255, 0, 0);
-                }
-                if (WofSpawnMessages == 190)
-                {
-                    SendMessage("<Wall of Flesh> *Buurp!*", 255, 0, 0);
-                    for(byte i = 0; i < 255; i++)
-                    {
-                        if (Main.player[i].active && Main.player[i].ZoneUnderworldHeight)
-                        {
-                            Main.player[i].AddBuff(Terraria.ID.BuffID.Poisoned, 60 * 60, false);
-                        }
-                    }
-                }
-                if (WofSpawnMessages == 250)
-                {
-                    SendMessage("*Don't feed the wall of flesh right now.*", 255, 0, 0);
-                }
-            }
-        }
 	}
 }

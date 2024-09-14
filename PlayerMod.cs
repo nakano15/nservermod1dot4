@@ -12,32 +12,12 @@ namespace nservermod1dot4
 {
 	public class PlayerMod : ModPlayer
 	{
-        public override void ResetEffects()
-        {
-            
-        }
-
-        public override void PlayerConnect()
-        {
-
-        }
-
-        public override void PreUpdateBuffs()
-        {
-            
-        }
-
-        public override void OnEnterWorld()
-        {
-            
-        }
-
-        public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
+        /*public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
         {
             if(Main.netMode == 2 && damageSource.SourceOtherIndex == 2 && Player.ZoneUnderworldHeight && !NPC.AnyNPCs(NPCID.WallofFlesh))
             {
                 NPC.SpawnOnPlayer(Player.whoAmI, NPCID.WallofFlesh);
             }
-        }
+        }*/
     }
 }
