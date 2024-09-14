@@ -19,7 +19,7 @@ namespace nservermod1dot4
             bool HarderDungeon = WorldMod.IsHarderDungeonAndSkeleEnabled.Value;
             switch (npc.type)
             {
-                /*case NPCID.SkeletronHead:
+                case NPCID.SkeletronHead:
                 case NPCID.SkeletronHand:
                     if (HarderDungeon)
                     {
@@ -47,13 +47,13 @@ namespace nservermod1dot4
                     {
                         npc.damage += 30;
                     }
-                    break;*/
+                    break;
                 case NPCID.Werewolf:
                     if (Main.rand.Next(100) == 0)
                         npc.GivenName = "Furry";
                     if (!Main.hardMode)
                     {
-                        npc.lifeMax = 500;
+                        npc.damage = 30;
                         npc.defense = 8;
                     }
                     break;
